@@ -17,19 +17,20 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [animeList, setAnimeList] = useState([]);
+  const [trendingAnime, setTrendingAnime] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
   useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]);
 
-  const fetchAnime = async (query='') => {
+  const fetchAnime = async (query = "") => {
     setIsLoading(true);
     setErrorMessage("");
 
     try {
-      const endpoint = query 
-      ? `${API_BASE_URL}/anime?q=${encodeURIComponent(query)}`
-      : `${API_BASE_URL}/top/anime?&ype=tv&filter=bypopularity`;
+      const endpoint = query
+        ? `${API_BASE_URL}/anime?q=${encodeURIComponent(query)}`
+        : `${API_BASE_URL}/top/anime?&type=tv&filter=bypopularity&limit=5`;
       const response = await fetch(endpoint, API_OPTIONS);
 
       if (!response.ok) {
@@ -63,15 +64,24 @@ const App = () => {
 
       <div className="wrapper">
         <header>
-          <img src="./vite.svg" alt="placeholder image" />
+          <img className="logo" src="./vite.svg" alt="placeholder image" />
           <h1>
-            {" "}
-            Find <span className="text-gradient">Anime</span> You Like{" "}
+            Find <span className="text-gradient">Anime</span> You Like
           </h1>
 
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
-
+        <section className="trending">
+          <h2>Trending Anime</h2>
+          <ul>
+            {animeList.map((anime, index) => (
+              <li key={anime.mal_id}>
+                <p>{index + 1}</p>
+                <img src={anime.images.jpg.large_image_url} anime={anime} />
+              </li>
+            ))}
+          </ul>
+        </section>
         <section className="all-anime">
           <h2 className="mt-[40px]">All Anime</h2>
 
@@ -82,7 +92,7 @@ const App = () => {
           ) : (
             <ul>
               {animeList.map((anime) => (
-                <AnimeCard key={anime.mal_id} anime={anime}/>
+                <AnimeCard key={anime.mal_id} anime={anime} />
               ))}
             </ul>
           )}
