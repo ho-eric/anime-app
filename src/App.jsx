@@ -17,7 +17,7 @@ const App = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [animeList, setAnimeList] = useState([]);
-  const [trendingAnime, setTrendingAnime] = useState([]);
+  const [trendingAnimeList, setTrendingAnimeList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
@@ -30,7 +30,7 @@ const App = () => {
     try {
       const endpoint = query
         ? `${API_BASE_URL}/anime?q=${encodeURIComponent(query)}`
-        : `${API_BASE_URL}/top/anime?&type=tv&filter=bypopularity&limit=5`;
+        : `${API_BASE_URL}/top/anime?&type=tv&filter=bypopularity`;
       const response = await fetch(endpoint, API_OPTIONS);
 
       if (!response.ok) {
@@ -49,6 +49,30 @@ const App = () => {
     } catch (error) {
       console.error(`Error  fetching anime: ${error}`);
       setErrorMessage("Error fetching anime, please try again");
+    } finally {
+      setIsLoading(false);
+    }
+
+    try {
+      const endpoint2 = `${API_BASE_URL}/top/anime?&filter=airing&limit=5`;
+      const response2 = await fetch(endpoint2, API_OPTIONS);
+
+      if (!response2.ok) {
+        throw new Error("Failed to fetch trending anime");
+      }
+
+      const data2 = await response2.json();
+
+      if (data2.response2 === false) {
+        setErrorMessage(data.Error || "Failed to fetch trending anime");
+        setTrendingAnimeList([]);
+        return;
+      }
+
+      setTrendingAnimeList(data2.data || []);
+    } catch (error) {
+      console.error(`Error fetching trending anime: ${error}`);
+      setErrorMessage("Error fetching trending anime, please try again");
     } finally {
       setIsLoading(false);
     }
@@ -72,12 +96,12 @@ const App = () => {
           <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
         </header>
         <section className="trending">
-          <h2>Trending Anime</h2>
+          <h2>Trending Airing Anime</h2>
           <ul>
-            {animeList.map((anime, index) => (
-              <li key={anime.mal_id}>
+            {trendingAnimeList.map((trendingAnime, index) => (
+              <li key={trendingAnime.mal_id}>
                 <p>{index + 1}</p>
-                <img src={anime.images.jpg.large_image_url} anime={anime} />
+                <img src={trendingAnime.images.jpg.large_image_url} />
               </li>
             ))}
           </ul>
