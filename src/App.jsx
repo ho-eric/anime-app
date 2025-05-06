@@ -29,8 +29,8 @@ const App = () => {
 
     try {
       const endpoint = query
-        ? `${API_BASE_URL}/anime?q=${encodeURIComponent(query)}`
-        : `${API_BASE_URL}/top/anime?&type=tv&filter=bypopularity`;
+        ? `${API_BASE_URL}/anime?q=${encodeURIComponent(query)}&sfw`
+        : `${API_BASE_URL}/top/anime?&type=tv&filter=bypopularity&limit=24`;
       const response = await fetch(endpoint, API_OPTIONS);
 
       if (!response.ok) {
